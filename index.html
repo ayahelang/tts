@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Silverhawk Translator</title>
+
+    <link rel="stylesheet" href="style.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+  </head>
+
+  <body>
+    <div class="container">
+      <h1>🦅 Silverhawk Translator</h1>
+      <p class="tagline">translate and read aloud your words free</p>
+
+      <div class="translator">
+        <!-- INPUT -->
+        <div class="box">
+          <div class="lang-select">
+            <img id="flagInput" src="https://flagcdn.com/id.svg" />
+            <select id="inputLang">
+              <option value="id">Indonesia</option>
+              <option value="en">English</option>
+              <option value="fr">Français</option>
+              <option value="zh">Mandarin</option>
+            </select>
+          </div>
+
+          <textarea id="inputText" placeholder="Type your text..."></textarea>
+
+          <div class="actions">
+            <button id="speakInput"><i class="fa fa-volume-up"></i></button>
+            <button id="copyInput"><i class="fa fa-copy"></i></button>
+          </div>
+        </div>
+
+        <!-- OUTPUT -->
+        <div class="box">
+          <div class="lang-select">
+            <img id="flagOutput" src="https://flagcdn.com/us.svg" />
+            <select id="outputLang">
+              <option value="id">Indonesia</option>
+              <option value="en">English</option>
+              <option value="fr">Français</option>
+              <option value="zh">Mandarin</option>
+              <option value="de">Deutsch</option>
+            </select>
+          </div>
+
+          <textarea id="outputText" readonly></textarea>
+
+          <div class="actions">
+            <button id="speakOutput"><i class="fa fa-volume-up"></i></button>
+            <button id="copyOutput"><i class="fa fa-copy"></i></button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      Powered by
+      <a href="https://silverhawk.web.id" target="_blank">
+        Silverhawk Network
+      </a>
+    </footer>
+
+    <script src="script.js"></script>
+  </body>
+</html>

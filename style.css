@@ -1,0 +1,92 @@
+body {
+  font-family: Arial, sans-serif;
+  background: #0f172a;
+  color: white;
+  margin: 0;
+}
+
+.container {
+  max-width: 1000px;
+  margin: auto;
+  padding: 30px;
+}
+
+h1 {
+  text-align: center;
+}
+
+.tagline {
+  text-align: center;
+  color: #94a3b8;
+  margin-bottom: 30px;
+}
+
+.translator {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.box {
+  flex: 1;
+  background: #1e293b;
+  padding: 20px;
+  border-radius: 12px;
+}
+
+textarea {
+  width: 100%;
+  height: 180px;
+  border: none;
+  padding: 10px;
+  border-radius: 8px;
+  resize: none;
+  font-size: 16px;
+}
+
+.lang-select {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.lang-select img {
+  width: 28px;
+}
+
+select {
+  padding: 6px;
+  border-radius: 6px;
+  border: none;
+}
+
+.actions {
+  margin-top: 10px;
+  display: flex;
+  gap: 10px;
+}
+
+button {
+  background: #3b82f6;
+  border: none;
+  color: white;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #2563eb;
+}
+
+footer {
+  text-align: center;
+  margin-top: 40px;
+  color: #94a3b8;
+}
+
+footer a {
+  color: #3b82f6;
+  text-decoration: none;
+}
