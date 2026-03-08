@@ -1,3 +1,10 @@
+let speakingBox = null
+let currentSpeech = null
+let speechState = "stopped"
+let holdTimer = null
+let longPressTriggered = false
+const HOLD_TIME = 600
+
 const inputText = document.getElementById("inputText")
 const outputText = document.getElementById("outputText")
 
@@ -106,18 +113,85 @@ document.getElementById("reverseBtn").onclick = () => {
     updateFlags()
 }
 
-function speak(text, lang) {
-    const utterance = new SpeechSynthesisUtterance(text)
-    utterance.lang = lang
-    speechSynthesis.speak(utterance)
+function speak(text, lang, source) {
+    const btn = source === "input"
+        ? document.querySelector("#speakInput i")
+        : document.querySelector("#speakOutput i")
+    if (!text) return
+    // jika klik box lain → stop semua
+    if (speakingBox && speakingBox !== source) {
+        speechSynthesis.cancel()
+        speechState = "stopped"
+    }
+    // PAUSE
+    if (speechSynthesis.speaking && speechState === "playing" && speakingBox === source) {
+        speechSynthesis.pause()
+        speechState = "paused"
+        updateSpeakerTooltip()
+        btn.className = "fa fa-play"
+        return
+    }
+    // RESUME
+    if (speechState === "paused" && speakingBox === source) {
+        speechSynthesis.resume()
+        speechState = "playing"
+        updateSpeakerTooltip()
+        btn.className = "fa fa-pause"
+        return
+    }
+    // STOP lama lalu mulai baru
+    speechSynthesis.cancel()
+    currentSpeech = new SpeechSynthesisUtterance(text)
+    currentSpeech.lang = lang
+    speakingBox = source
+    speechState = "playing"
+    updateSpeakerTooltip()
+    btn.className = "fa fa-pause"
+    currentSpeech.onend = () => {
+        speechState = "stopped"
+        speakingBox = null
+        document.querySelector("#speakInput i").className = "fa fa-volume-up"
+        document.querySelector("#speakOutput i").className = "fa fa-volume-up"
+        updateSpeakerTooltip()
+    }
+    speechSynthesis.speak(currentSpeech)
+}
+
+function stopSpeech() {
+    speechSynthesis.cancel()
+    speechState = "stopped"
+    speakingBox = null
+    document.querySelector("#speakInput i").className = "fa fa-volume-up"
+    document.querySelector("#speakOutput i").className = "fa fa-volume-up"
+    updateSpeakerTooltip()
+}
+
+function updateSpeakerTooltip() {
+    const inputBtn = document.getElementById("speakInput")
+    const outputBtn = document.getElementById("speakOutput")
+    if (speechState === "playing" || speechState === "paused") {
+        inputBtn.title = "Press and hold to stop"
+        outputBtn.title = "Press and hold to stop"
+    } else {
+        inputBtn.title = ""
+        outputBtn.title = ""
+    }
 }
 
 document.getElementById("speakInput").onclick = () => {
-    speak(inputText.value, inputLang.value)
+    if (longPressTriggered) {
+        longPressTriggered = false
+        return
+    }
+    speak(inputText.value, inputLang.value, "input")
 }
 
 document.getElementById("speakOutput").onclick = () => {
-    speak(outputText.value, outputLang.value)
+    if (longPressTriggered) {
+        longPressTriggered = false
+        return
+    }
+    speak(outputText.value, outputLang.value, "output")
 }
 
 document.getElementById("copyInput").onclick = () => {
@@ -291,3 +365,46 @@ function triggerAutoTranslate() {
         translate()
     }, 3000)
 }
+
+function enableLongPress(buttonId) {
+    const btn = document.getElementById(buttonId)
+    // MOUSE
+    btn.addEventListener("mousedown", () => {
+        longPressTriggered = false
+        holdTimer = setTimeout(() => {
+            longPressTriggered = true
+            stopSpeech()
+        }, HOLD_TIME)
+    })
+    btn.addEventListener("mouseup", () => {
+        clearTimeout(holdTimer)
+    })
+    btn.addEventListener("mouseleave", () => {
+        clearTimeout(holdTimer)
+    })
+    // TOUCH (HP)
+    btn.addEventListener("touchstart", () => {
+        longPressTriggered = false
+        holdTimer = setTimeout(() => {
+            longPressTriggered = true
+            navigator.vibrate(50)
+            stopSpeech()
+        }, HOLD_TIME)
+    })
+    btn.addEventListener("touchend", () => {
+        clearTimeout(holdTimer)
+    })
+}
+
+enableLongPress("speakInput")
+enableLongPress("speakOutput")
+
+window.addEventListener("beforeunload", () => {
+    speechSynthesis.cancel()
+})
+
+document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+        stopSpeech()
+    }
+})
