@@ -28,6 +28,25 @@ const flags = {
     zh: "cn"
 }
 
+async function askAI(prompt, systemPrompt) {
+    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+        method: "POST",
+        headers: {
+            "Authorization": "Bearer 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",
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            model: "openai/gpt-4o-mini",
+            messages: [
+                { role: "system", content: systemPrompt },
+                { role: "user", content: prompt }
+            ]
+        })
+    })
+    const data = await response.json()
+    return data.choices[0].message.content
+}
+
 function updateFlags() {
     flagInput.src = `https://flagcdn.com/${flags[inputLang.value]}.svg`
     flagOutput.src = `https://flagcdn.com/${flags[outputLang.value]}.svg`
@@ -190,11 +209,32 @@ document.getElementById("templateSelect").onchange = function () {
     }
 }
 
-document.getElementById("generatePrompt").onclick = function () {
-    const prompt = document.getElementById("promptInput").value
-    if (prompt.trim() == "") return
-    inputText.value = "Conversation topic: " + prompt
-    triggerAutoTranslate()
+document.getElementById("generatePrompt").onclick = async function () {
+    const prompt = document.getElementById("promptInput").value.trim()
+    const mode = document.getElementById("templateSelect").value
+    if (!prompt) return
+    inputText.value = "AI is thinking..."
+    try {
+        let systemPrompt = ""
+        if (mode === "story") {
+            systemPrompt = "Write a short simple English story."
+        } else if (mode === "grammar") {
+            systemPrompt = "Fix grammar and rewrite the sentence correctly."
+        } else if (mode === "simplify") {
+            systemPrompt = "Rewrite the sentence using simple English."
+        } else if (mode === "bilingual") {
+            systemPrompt = "Create a bilingual dialogue English and Indonesian."
+        } else {
+            systemPrompt = "Generate a natural English conversation."
+        }
+        const result = await askAI(prompt, systemPrompt)
+        inputText.value = result
+        document.getElementById("charCount").innerText =
+            "Character: " + result.length
+        translate()
+    } catch (err) {
+        inputText.value = "AI generation error"
+    }
 }
 
 document.addEventListener("contextmenu", function (e) {
