@@ -1,9 +1,6 @@
 let speakingBox = null
 let currentSpeech = null
 let speechState = "stopped"
-let ttsInterval = null
-let ttsDuration = 0
-let ttsStart = 0
 let holdTimer = null
 let longPressTriggered = false
 const HOLD_TIME = 600
@@ -128,9 +125,8 @@ function speak(text, lang, source) {
     }
     // PAUSE
     if (speechSynthesis.speaking && speechState === "playing" && speakingBox === source) {
-        sspeechSynthesis.pause()
+        speechSynthesis.pause()
         speechState = "paused"
-        clearInterval(ttsInterval)
         updateSpeakerTooltip()
         btn.className = "fa fa-play"
         return
@@ -141,7 +137,6 @@ function speak(text, lang, source) {
         speechState = "playing"
         updateSpeakerTooltip()
         btn.className = "fa fa-pause"
-        startTTSProgress(text)
         return
     }
     // STOP lama lalu mulai baru
@@ -158,11 +153,8 @@ function speak(text, lang, source) {
         document.querySelector("#speakInput i").className = "fa fa-volume-up"
         document.querySelector("#speakOutput i").className = "fa fa-volume-up"
         updateSpeakerTooltip()
-        clearInterval(ttsInterval)
-        document.getElementById("ttsFill").style.width = "100%"
     }
     speechSynthesis.speak(currentSpeech)
-    startTTSProgress(text)
 }
 
 function stopSpeech() {
@@ -172,9 +164,6 @@ function stopSpeech() {
     document.querySelector("#speakInput i").className = "fa fa-volume-up"
     document.querySelector("#speakOutput i").className = "fa fa-volume-up"
     updateSpeakerTooltip()
-    clearInterval(ttsInterval)
-    document.getElementById("ttsFill").style.width = "0%"
-    document.getElementById("ttsTime").innerText = "0:00 / 0:00"
 }
 
 function updateSpeakerTooltip() {
@@ -405,35 +394,6 @@ function enableLongPress(buttonId) {
     btn.addEventListener("touchend", () => {
         clearTimeout(holdTimer)
     })
-}
-
-function estimateSpeechDuration(text) {
-    const words = text.split(/\s+/).length
-    const wordsPerMinute = 130
-    return (words / wordsPerMinute) * 60
-}
-
-function startTTSProgress(text) {
-    const timeBox = document.getElementById("ttsTime")
-    const fill = document.getElementById("ttsFill")
-    ttsDuration = estimateSpeechDuration(text)
-    ttsStart = Date.now()
-    clearInterval(ttsInterval)
-    ttsInterval = setInterval(() => {
-        const elapsed = (Date.now() - ttsStart) / 1000
-        const percent = Math.min(elapsed / ttsDuration, 1)
-        fill.style.width = (percent * 100) + "%"
-        const format = (s) => {
-            const m = Math.floor(s / 60)
-            const sec = Math.floor(s % 60)
-            return m + ":" + String(sec).padStart(2, "0")
-        }
-        timeBox.innerText =
-            format(elapsed) + " / " + format(ttsDuration)
-        if (percent >= 1) {
-            clearInterval(ttsInterval)
-        }
-    }, 200)
 }
 
 enableLongPress("speakInput")
